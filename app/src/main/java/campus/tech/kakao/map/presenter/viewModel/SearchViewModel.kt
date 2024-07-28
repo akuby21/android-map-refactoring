@@ -42,9 +42,7 @@ class SearchViewModel @Inject constructor(
 
         place?.let {
             viewModelScope.launch {
-                repository.addFavorite(it).run {
-                    _favoritePlace.value = this
-                }
+                _favoritePlace.postValue(repository.addFavorite(it))
             }
         }
     }
