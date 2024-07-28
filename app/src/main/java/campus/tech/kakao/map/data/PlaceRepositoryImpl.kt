@@ -1,5 +1,7 @@
 package campus.tech.kakao.map.data
 
+import android.content.Context
+import android.content.SharedPreferences
 import campus.tech.kakao.map.data.datasource.Local.Entity.FavoriteEntity
 import campus.tech.kakao.map.data.datasource.Local.Entity.PlaceEntity
 import campus.tech.kakao.map.data.datasource.Local.Entity.toVO
@@ -9,6 +11,7 @@ import campus.tech.kakao.map.data.datasource.Remote.Response.toVO
 import campus.tech.kakao.map.data.datasource.Remote.RetrofitService
 import campus.tech.kakao.map.domain.PlaceRepository
 import campus.tech.kakao.map.domain.vo.Place
+import campus.tech.kakao.map.presenter.view.MapActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -16,8 +19,19 @@ import javax.inject.Inject
 class PlaceRepositoryImpl @Inject constructor(
     private val roomDB: RoomDB,
     private val retrofitService: RetrofitService,
-    private val httpUrlConnect: RemoteService
+    private val httpUrlConnect: RemoteService,
+    private val sharedPreference: SharedPreferences
 ) : PlaceRepository {
+
+    override fun savePlaceId(id : Int){
+        val editor = sharedPreference.edit()
+        editor.putInt(COLUMN_ID, id)
+        editor.commit()
+    }
+
+    override fun getSavedPlaceId() : Int =
+        sharedPreference.getInt(COLUMN_ID, NO_ID)
+
 
     override suspend fun getCurrentFavorite() : List<Place> = withContext(Dispatchers.IO){
         roomDB.favoriteDao().getCurrentFavorite().map { it.toVO() }
@@ -107,5 +121,7 @@ class PlaceRepositoryImpl @Inject constructor(
     )
     companion object {
         const val MAX_PAGE = 2
+        const val COLUMN_ID = "id"
+        const val NO_ID = -1
     }
 }

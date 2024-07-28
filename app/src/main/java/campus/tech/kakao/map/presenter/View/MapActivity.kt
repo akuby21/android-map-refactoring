@@ -37,7 +37,6 @@ class MapActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        loadStateFromSharedPreference()
         startMap()
         setSearchListener(makeResultLauncher())
     }
@@ -49,16 +48,7 @@ class MapActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.currentPlace.observe(this) {
-            it?.let { saveStateOnSharedPreference(it.id) }
-        }
         binding.mapView.pause()
-    }
-
-    private fun loadStateFromSharedPreference() {
-        val sharedPreferences = getSharedPreferences(CURRENT_PLACE, Context.MODE_PRIVATE)
-        val id = sharedPreferences.getInt(COLUMN_ID, NO_ID)
-        if (id != NO_ID) viewModel.initPlace(id)
     }
 
     private fun startMap() {
@@ -93,14 +83,6 @@ class MapActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveStateOnSharedPreference(id: Int) {
-        val sharedPreferences = getSharedPreferences(CURRENT_PLACE, Context.MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = sharedPreferences.edit()
-
-        editor.putInt(COLUMN_ID, id)
-        editor.commit()
-    }
-
     private fun addPinOnMap(kakaoMap: KakaoMap, latLng: LatLng, name: String?) {
         val styles = kakaoMap.labelManager?.addLabelStyles(
             LabelStyles.from(
@@ -127,7 +109,7 @@ class MapActivity : AppCompatActivity() {
         when (result.resultCode) {
             RESULT_OK -> {
                 result.data?.extras?.getInt(PlaceSearchActivity.INTENT_ID)?.let {
-                    viewModel.initPlace(it)
+                    viewModel.initPlaceById(it)
                 }
 
             }
@@ -139,9 +121,6 @@ class MapActivity : AppCompatActivity() {
     companion object {
         private const val LABEL_TEXT_SIZE = 24
         private const val LABEL_ZOOM_LEVEL = 8
-        private const val CURRENT_PLACE = "current_place"
-        private const val COLUMN_ID = "id"
-        private const val NO_ID = -1
     }
 
 }

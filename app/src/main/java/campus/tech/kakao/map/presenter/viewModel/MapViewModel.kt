@@ -14,11 +14,18 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val repository: PlaceRepository
 ) : ViewModel() {
-    private val _currentPlace : MutableLiveData<Place?> = MutableLiveData()
-    val currentPlace : LiveData<Place?> = _currentPlace
+    private val _currentPlace: MutableLiveData<Place?> = MutableLiveData()
+    val currentPlace: LiveData<Place?> = _currentPlace
 
-    fun initPlace(id : Int){
-        viewModelScope.launch{
+    init {
+        viewModelScope.launch {
+            val savedId = repository.getSavedPlaceId()
+            _currentPlace.value = repository.getFavoriteById(savedId)
+        }
+    }
+
+    fun initPlaceById(id: Int) {
+        viewModelScope.launch {
             _currentPlace.value = repository.getFavoriteById(id)
         }
     }

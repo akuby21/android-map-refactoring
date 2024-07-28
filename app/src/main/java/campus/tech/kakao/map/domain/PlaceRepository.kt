@@ -12,5 +12,6 @@ interface PlaceRepository {
     suspend fun searchPlaceRemote(name : String) : List<Place>
     fun getPlaceByNameHTTP(name : String) : List<Place>
 
-
+    fun getSavedPlaceId() : Int
+    fun savePlaceId(id : Int)
 }
